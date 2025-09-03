@@ -1,0 +1,153 @@
+from playwright.sync_api import Page, expect
+
+# Tests for your routes go here
+
+"""
+We can return the albums from the albums database in a HTML file
+"""
+def test_get_albums(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/get-albums")
+
+    div_tags = page.locator("div")
+    
+    expected_titles = [
+        "Doolittle",
+        "Surfer Rosa",
+        "Waterloo"
+    ]
+    for index, title in enumerate(expected_titles):
+        expect(div_tags.nth(index)).to_have_text(title)
+    
+
+"""
+We can return a given album from the albums database, and its artist
+from the artist database and return it in an HTML file
+"""
+def test_get_specified_album(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/get-specified-album/1")
+
+    h1_tag = page.locator("h1")
+    p_tags = page.locator("p")
+
+    expect(h1_tag).to_have_text("Doolittle")
+    expect(p_tags).to_have_text(
+        "Release year: 1989\n" \
+        "Artist: Pixies\n\n" \
+        "Return to Albums list"
+    )
+
+"""
+We connect to the main album list, click an album and receive the 
+album information in a new page, then return to album list.
+"""
+
+def test_get_albums_return_albums(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/get-albums")
+
+    page.click("a:has-text('Doolittle')")
+
+    p_tags = page.locator("p")
+
+    expect(p_tags).to_have_text(
+        "Release year: 1989\nArtist: Pixies\n\nReturn to Albums list")
+
+    page.click("a:has-text('Return to Albums list')")
+    
+    div_tags = page.locator("div")
+    
+    expected_titles = [
+        "Doolittle",
+        "Surfer Rosa",
+        "Waterloo"
+    ]
+    for index, title in enumerate(expected_titles):
+        expect(div_tags.nth(index)).to_have_text(title)
+    
+
+"""
+We access a list of artists from a database using the 
+GET artists HTML
+"""
+
+def test_get_artists_returns_artist_list(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f'http://{test_web_address}/get-artists')
+
+    div_tags = page.locator("div")
+    print(div_tags)
+    expected_names = [
+        "Pixies",
+        "ABBA",
+        "Taylor Swift",
+        "Nina Simone"
+    ]
+    for index, name in enumerate(expected_names):
+        expect(div_tags.nth(index)).to_have_text(name)
+
+
+"""
+We click from artists page to access information on one artist, 
+then return to original artists directory page
+"""
+
+def test_get_artists_return_artist_back(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/get-artists")
+
+    page.click("a:has-text('Pixies')")
+
+    p_tags = page.locator("p")
+
+    expect(p_tags).to_have_text(
+        "Albums by Pixies\n\nGenre: Rock\n\nReturn to Artists list")
+
+    page.click("a:has-text('Return to Artists list')")
+    
+    div_tags = page.locator("div")
+    
+    expected_names = [
+        "Pixies",
+        "ABBA",
+        "Taylor Swift",
+        "Nina Simone"
+    ]
+    for index, name in enumerate(expected_names):
+        expect(div_tags.nth(index)).to_have_text(name)
+
+"""
+We access an artist from the artists list, then click the albums
+hyperlink and are shown albums by this artist
+"""
+
+def test_artists_to_artist_to_albums_back(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/get-artists")
+
+    page.click("a:has-text('Pixies')")
+
+    page.click("a:has-text('Albums by Pixies')")
+
+    strong_tags = page.locator("strong")
+    
+    expected_titles = [
+        "Doolittle",
+        "Surfer Rosa"
+    ]
+    for index, title in enumerate(expected_titles):
+        expect(strong_tags.nth(index)).to_have_text(title)
+    
+    page.click("a:has-text('Return to Artists')")
+
+    div_tags = page.locator("div")
+    
+    expected_names = [
+        "Pixies",
+        "ABBA",
+        "Taylor Swift",
+        "Nina Simone"
+    ]
+    for index, name in enumerate(expected_names):
+        expect(div_tags.nth(index)).to_have_text(name)

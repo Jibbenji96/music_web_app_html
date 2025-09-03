@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Albums by artist</title>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <h1>Albums by {{ artist_name }}</h1>
+        {% for album in albums %}
+        <article>
+        <div>
+        <strong> {{ album.title }} </strong><br>
+        Released: {{ album.release_year }}<br><br>
+        </div>
+        </article>
+        {% endfor %}
+        <a href="/get-artists">Return to Artists</a>
+    </body>
+
+</html>
