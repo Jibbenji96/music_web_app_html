@@ -19,6 +19,7 @@ def get_specified_album(id):
 
     return render_template('albums/show.html', album=album)
     
+    
 
 @app.route('/get-albums-by-artist/<artist_id>', methods = ['GET'])
 def get_albums_by_artist(artist_id):
@@ -31,6 +32,7 @@ def get_albums_by_artist(artist_id):
         return "No Albums by this artist", 404
     
     return render_template('artists/index_artist.html', albums=albums, artist_name=artist_name)
+
 
 
 @app.route('/get-albums', methods = ['GET'])
