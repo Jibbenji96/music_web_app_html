@@ -1,5 +1,6 @@
 import os
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
+
 from lib.database_connection import get_flask_database_connection
 from lib.album_repository import AlbumRepository
 from lib.artists_repository import ArtistRepository
@@ -8,7 +9,30 @@ from lib.artists_repository import ArtistRepository
 app = Flask(__name__)
 
 # == Your Routes Here ==
-@app.route('/get-specified-album/<id>', methods = ['GET'])
+@app.route('/get-albums/create/<int:artist_id>', methods = ['GET'])
+def get_new_album(artist_id):
+    connection = get_flask_database_connection(app)
+    album_repo =AlbumRepository(connection)
+    artist_name = album_repo.get_artist_name(artist_id)
+    return render_template('artists/new_album.html', artist_id=artist_id, artist_name=artist_name)
+
+
+
+@app.route('/get-albums', methods=['POST'])
+def post_new_album():
+    title = request.form['title']
+    release_year = request.form['release_year']
+    artist_id = int(request.form['artist_id'])  
+
+    connection = get_flask_database_connection(app)
+    album_repo = AlbumRepository(connection)
+    album_repo.create_album(title, release_year, artist_id)
+
+    return redirect(url_for('get_albums_by_artist', artist_id=artist_id))
+
+
+
+@app.route('/get-albums/<int:id>', methods = ['GET'])
 def get_specified_album(id):
     connection = get_flask_database_connection(app)
     album_repo = AlbumRepository(connection)
@@ -19,9 +43,9 @@ def get_specified_album(id):
 
     return render_template('albums/show.html', album=album)
     
-    
 
-@app.route('/get-albums-by-artist/<artist_id>', methods = ['GET'])
+
+@app.route('/get-albums/get-albums-by-artist/<int:artist_id>', methods = ['GET'])
 def get_albums_by_artist(artist_id):
     connection = get_flask_database_connection(app)
     albums_repo = AlbumRepository(connection)
@@ -31,7 +55,7 @@ def get_albums_by_artist(artist_id):
     if albums is None or artist_name is None:
         return "No Albums by this artist", 404
     
-    return render_template('artists/index_artist.html', albums=albums, artist_name=artist_name)
+    return render_template('artists/show_artist_albums.html', albums=albums, artist_name=artist_name)
 
 
 
@@ -48,7 +72,27 @@ def get_albumsl():
     
 
 
-@app.route('/get-specified-artist/<id>', methods = ['GET'])
+@app.route('/get-artists/create', methods=['GET'])
+def get_new_artist():
+    
+    return render_template('artists/new_artist.html')
+
+
+
+@app.route('/get-artists', methods=['POST'])
+def post_new_artist():
+    name = request.form['name']
+    genre = request.form['genre']
+
+    connection = get_flask_database_connection(app)
+    artist_repo = ArtistRepository(connection)
+    artist_repo.add_artist(name, genre)
+
+    return redirect(url_for('get_artists'))
+
+
+
+@app.route('/get-artists/<int:id>', methods = ['GET'])
 def get_specified_artist(id):
     connection = get_flask_database_connection(app)
     artist_repo = ArtistRepository(connection)

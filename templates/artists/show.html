@@ -3,12 +3,13 @@
     <head>
         <title>Single Artist</title>
         <meta charset="utf-8">
-    <head></head>
+    </head>
     <body>
         <h1>{{artist.name}}</h1>
         <p>
-        <a  href="/get-albums-by-artist/{{artist.id}}">Albums by {{ artist.name }}</a><br><br>
+        <a  href="/get-albums/get-albums-by-artist/{{artist.id}}">Albums by {{ artist.name }}</a><br><br>
         Genre: {{ artist.genre }}<br><br>
+        <a  href="/get-albums/create/{{ artist.id }}">Create new album by {{ artist.name }}</a><br><br>
         <a  href="/get-artists">Return to Artists list</a>
         </p>
     </body>

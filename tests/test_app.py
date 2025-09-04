@@ -26,7 +26,7 @@ from the artist database and return it in an HTML file
 """
 def test_get_specified_album(page, test_web_address, db_connection):
     db_connection.seed('seeds/albums_table.sql')
-    page.goto(f"http://{test_web_address}/get-specified-album/1")
+    page.goto(f"http://{test_web_address}/get-albums/1")
 
     h1_tag = page.locator("h1")
     p_tags = page.locator("p")
@@ -102,7 +102,7 @@ def test_get_artists_return_artist_back(page, test_web_address, db_connection):
     p_tags = page.locator("p")
 
     expect(p_tags).to_have_text(
-        "Albums by Pixies\n\nGenre: Rock\n\nReturn to Artists list")
+        "Albums by Pixies\n\nGenre: Rock\n\nCreate new album by Pixies\n\nReturn to Artists list")
 
     page.click("a:has-text('Return to Artists list')")
     
@@ -148,6 +148,64 @@ def test_artists_to_artist_to_albums_back(page, test_web_address, db_connection)
         "ABBA",
         "Taylor Swift",
         "Nina Simone"
+    ]
+    for index, name in enumerate(expected_names):
+        expect(div_tags.nth(index)).to_have_text(name)
+
+
+"""
+We navigate from the home page to an artist and then to a create new album page,
+this then creates a new album and returns to the home page
+"""
+
+def test_create_album_within_artist_page_return_home(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/get-artists")
+
+    page.click("a:has-text('Pixies')")
+
+    page.click("a:has-text('Create new album by Pixies')")
+
+    page.fill("input[name='title']", "Bossanova")
+    page.fill("input[name='release_year']", str(1990))
+
+    page.click("input:has-text('Create Album')")
+
+    strong_tags = page.locator("strong")
+    
+    expected_titles = [
+        "Doolittle",
+        "Surfer Rosa",
+        "Bossanova"
+    ]
+    for index, title in enumerate(expected_titles):
+        expect(strong_tags.nth(index)).to_have_text(title)
+
+
+"""
+We navigate from the artists page to a create artist page and then 
+create a new artist then returning to the artists page
+"""
+
+def test_create_artist_within_artist_page_return_home(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/get-artists")
+
+    page.click("a:has-text('Create new artist')")
+
+    page.fill("input[name='name']", "Vince Staples")
+    page.fill("input[name='genre']", "Rap")
+
+    page.click("input:has-text('Create Artist')")
+
+    div_tags = page.locator("div")
+    
+    expected_names = [
+        "Pixies",
+        "ABBA",
+        "Taylor Swift",
+        "Nina Simone",
+        "Vince Staples"
     ]
     for index, name in enumerate(expected_names):
         expect(div_tags.nth(index)).to_have_text(name)

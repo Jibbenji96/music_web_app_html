@@ -9,10 +9,11 @@
         {% for artist in artists %}
         <article>
         <div>
-        <a href = "/get-specified-artist/{{artist.id}}">{{artist.name}}<br><br>
+        <a href = "/get-artists/{{artist.id}}">{{artist.name}}<br><br>
         </div>
         </article>
         {% endfor %}
+        <br><strong><a href = "/get-artists/create">Create new Artist</a></strong>
     </body>
 
 </html>
