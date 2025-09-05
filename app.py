@@ -4,6 +4,8 @@ from flask import Flask, request, render_template, redirect, url_for
 from lib.database_connection import get_flask_database_connection
 from lib.album_repository import AlbumRepository
 from lib.artists_repository import ArtistRepository
+from lib.artist import Artist
+from lib.album import Album
 
 # Create a new Flask app
 app = Flask(__name__)
@@ -22,13 +24,19 @@ def get_new_album(artist_id):
 def post_new_album():
     title = request.form['title']
     release_year = request.form['release_year']
-    artist_id = int(request.form['artist_id'])  
+    artist_id = int(request.form['artist_id'])
+    
+    album = Album(None, title, release_year, artist_id)
+    
+    if not album.is_valid():
+        return render_template('artists/new_album.html', errors = album.contains_errors()), 400
 
     connection = get_flask_database_connection(app)
     album_repo = AlbumRepository(connection)
     album_repo.create_album(title, release_year, artist_id)
 
     return redirect(url_for('get_albums_by_artist', artist_id=artist_id))
+
 
 
 
@@ -86,7 +94,13 @@ def post_new_artist():
 
     connection = get_flask_database_connection(app)
     artist_repo = ArtistRepository(connection)
+    artist = Artist(None, name, genre)
+    
+    if not artist.is_valid():
+        return render_template('artists/new_artist.html', errors = artist.contains_errors()), 400
+
     artist_repo.add_artist(name, genre)
+
 
     return redirect(url_for('get_artists'))
 

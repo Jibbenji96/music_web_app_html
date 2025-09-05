@@ -168,9 +168,9 @@ def test_create_album_within_artist_page_return_home(page, test_web_address, db_
 
     page.fill("input[name='title']", "Bossanova")
     page.fill("input[name='release_year']", str(1990))
-
+    
     page.click("input:has-text('Create Album')")
-
+    page.screenshot(path="screenshot.png", full_page = True)
     strong_tags = page.locator("strong")
     
     expected_titles = [
@@ -209,3 +209,45 @@ def test_create_artist_within_artist_page_return_home(page, test_web_address, db
     ]
     for index, name in enumerate(expected_names):
         expect(div_tags.nth(index)).to_have_text(name)
+
+
+"""
+We try and create an album with missing attributes and
+are returned an error message in the page
+"""
+
+def test_no_artist_name_returns_error_message(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/get-artists")
+    
+    
+    page.click("a:has-text('Create new Artist')")
+
+    page.fill("input[name='name']", "Mick Jenkins")
+    page.fill("input[name='genre']", "")
+
+    page.click("input:has-text('Create Artist')")
+    page.screenshot(path="screenshot.png", full_page = True)
+    errors = page.locator(".t-errors")
+
+    expect(errors).to_have_text("There were errors with your submission: Artist has no genre.")
+
+
+
+def test_no_album_name_returns_error_message(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/get-artists")
+    
+    
+    page.click("a:has-text('Pixies')")
+
+    page.click("a:has-text('Create new album by Pixies')")
+
+    page.fill("input[name='title']", "")
+    page.fill("input[name='release_year']", "1991")
+
+    page.click("input:has-text('Create Album')")
+    page.screenshot(path="screenshot.png", full_page = True)
+    errors = page.locator(".t-errors")
+
+    expect(errors).to_have_text("There were errors with your submission: Album has no title.")
